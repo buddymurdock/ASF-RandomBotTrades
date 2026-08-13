@@ -175,7 +175,7 @@ internal sealed class RandomBotTrades : IASF, IGitHubPluginUpdates {
 	private static async Task<List<Asset>> GetTradableCardsAsync(Bot bot) {
 		List<Asset> tradableCards = [];
 
-		await foreach (Asset asset in bot.ArchiWebHandler.GetInventoryAsync(appID: Asset.SteamAppID, contextID: Asset.SteamCommunityContextID)) {
+		await foreach (Asset asset in bot.ArchiWebHandler.GetInventoryAsync(appID: Asset.SteamAppID, contextID: Asset.SteamCommunityContextID).ConfigureAwait(false)) {
 			if (asset.Tradable && AllowedItemTypes.Contains(asset.Type)) {
 				tradableCards.Add(asset);
 			}
