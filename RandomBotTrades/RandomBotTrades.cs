@@ -21,15 +21,15 @@ internal sealed class RandomBotTrades : IASF, IGitHubPluginUpdates {
 	private static readonly HashSet<EAssetType> AllowedItemTypes = [EAssetType.TradingCard, EAssetType.FoilTradingCard];
 
 	private const byte DefaultMaxItemsPerTrade = 3;
-	private const ushort DefaultMaxDelayBetweenTradesInSeconds = 7200;
+	private const uint DefaultMaxDelayBetweenTradesInSeconds = 7200;
 	private const byte DefaultMinItemsPerTrade = 1;
-	private const ushort DefaultMinDelayBetweenTradesInSeconds = 1800;
+	private const uint DefaultMinDelayBetweenTradesInSeconds = 1800;
 
 	private CancellationTokenSource? BackgroundLoopCts;
 	private bool Enabled;
-	private ushort MaxDelayBetweenTradesInSeconds = DefaultMaxDelayBetweenTradesInSeconds;
+	private uint MaxDelayBetweenTradesInSeconds = DefaultMaxDelayBetweenTradesInSeconds;
 	private byte MaxItemsPerTrade = DefaultMaxItemsPerTrade;
-	private ushort MinDelayBetweenTradesInSeconds = DefaultMinDelayBetweenTradesInSeconds;
+	private uint MinDelayBetweenTradesInSeconds = DefaultMinDelayBetweenTradesInSeconds;
 	private byte MinItemsPerTrade = DefaultMinItemsPerTrade;
 
 	public string Name => nameof(RandomBotTrades);
@@ -46,11 +46,11 @@ internal sealed class RandomBotTrades : IASF, IGitHubPluginUpdates {
 						Enabled = configValue.GetBoolean();
 
 						break;
-					case $"{nameof(RandomBotTrades)}MinDelayBetweenTrades" when (configValue.ValueKind == JsonValueKind.Number) && configValue.TryGetUInt16(out ushort minDelayBetweenTrades) && (minDelayBetweenTrades > 0):
+					case $"{nameof(RandomBotTrades)}MinDelayBetweenTrades" when (configValue.ValueKind == JsonValueKind.Number) && configValue.TryGetUInt32(out uint minDelayBetweenTrades) && (minDelayBetweenTrades > 0):
 						MinDelayBetweenTradesInSeconds = minDelayBetweenTrades;
 
 						break;
-					case $"{nameof(RandomBotTrades)}MaxDelayBetweenTrades" when (configValue.ValueKind == JsonValueKind.Number) && configValue.TryGetUInt16(out ushort maxDelayBetweenTrades) && (maxDelayBetweenTrades > 0):
+					case $"{nameof(RandomBotTrades)}MaxDelayBetweenTrades" when (configValue.ValueKind == JsonValueKind.Number) && configValue.TryGetUInt32(out uint maxDelayBetweenTrades) && (maxDelayBetweenTrades > 0):
 						MaxDelayBetweenTradesInSeconds = maxDelayBetweenTrades;
 
 						break;
@@ -104,7 +104,7 @@ internal sealed class RandomBotTrades : IASF, IGitHubPluginUpdates {
 	// a perfectly metronomic tick interval running around the clock is itself a machine-detectable pattern, independent of anything visible to other users
 	private async Task BackgroundLoopAsync(CancellationToken cancellationToken) {
 		while (!cancellationToken.IsCancellationRequested) {
-			int delaySeconds = MinDelayBetweenTradesInSeconds == MaxDelayBetweenTradesInSeconds ? MinDelayBetweenTradesInSeconds : Random.Shared.Next(MinDelayBetweenTradesInSeconds, MaxDelayBetweenTradesInSeconds + 1);
+			uint delaySeconds = MinDelayBetweenTradesInSeconds == MaxDelayBetweenTradesInSeconds ? MinDelayBetweenTradesInSeconds : (uint) Random.Shared.Next((int) MinDelayBetweenTradesInSeconds, (int) MaxDelayBetweenTradesInSeconds + 1);
 
 			try {
 				await Task.Delay(TimeSpan.FromSeconds(delaySeconds), cancellationToken).ConfigureAwait(false);
